@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guitar Triads Master</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        select, button {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select {
+            background: white;
+            color: #333;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .fretboard-container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .fretboard {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            background: linear-gradient(to right, #8B4513, #D2691E);
+            border-radius: 10px;
+            padding: 20px 10px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .string {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            position: relative;
+            height: 25px;
+        }
+
+        .string-line {
+            position: absolute;
+            left: 40px;
+            right: 10px;
+            height: 2px;
+            background: #C0C0C0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .string:nth-child(1) .string-line { height: 1px; }
+        .string:nth-child(2) .string-line { height: 1.5px; }
+        .string:nth-child(3) .string-line { height: 2px; }
+        .string:nth-child(4) .string-line { height: 2.5px; }
+        .string:nth-child(5) .string-line { height: 3px; }
+        .string:nth-child(6) .string-line { height: 3.5px; }
+
+        .string-label {
+            width: 30px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .fret {
+            position: relative;
+            width: calc((100% - 50px) / 12);
+            height: 25px;
+            display: inline-block;
+            border-right: 2px solid #654321;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .fret[data-fret="0"] {
+            border-right: 6px solid #2c1810;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.3);
+        }
+
+        .fret:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .fret-number {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .note {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .note.root {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .note.third {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .note.fifth {
+            background: linear-gradient(135deg, #45b7d1, #2980b9);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-panel, .exercise-panel, .progress-panel {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-panel h3, .exercise-panel h3, .progress-panel h3 {
+            margin-bottom: 15px;
+            color: #ffd700;
+            font-size: 1.2rem;
+        }
+
+        .triad-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .note-info {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .note-info.root { background: rgba(255, 107, 107, 0.3); }
+        .note-info.third { background: rgba(78, 205, 196, 0.3); }
+        .note-info.fifth { background: rgba(69, 183, 209, 0.3); }
+
+        .exercise-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .exercise-question {
+            background: rgba(255,255,255,0.15);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .answer-feedback {
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .answer-feedback.correct {
+            background: rgba(46, 213, 115, 0.3);
+            color: #27ae60;
+        }
+
+        .answer-feedback.incorrect {
+            background: rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .legend-dot.root { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+        .legend-dot.third { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
+        .legend-dot.fifth { background: linear-gradient(135deg, #45b7d1, #2980b9); }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .fretboard {
+                padding: 15px 5px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎸 Guitar Triads Master</h1>
+            <p>Master guitar triads with interactive visualization and exercises</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="rootNote">Root Note:</label>
+                <select id="rootNote">
+                    <option value="C">C</option>
+                    <option value="C#">C#/Db</option>
+                    <option value="D">D</option>
+                    <option value="D#">D#/Eb</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="F#">F#/Gb</option>
+                    <option value="G">G</option>
+                    <option value="G#">G#/Ab</option>
+                    <option value="A">A</option>
+                    <option value="A#">A#/Bb</option>
+                    <option value="B">B</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="triadType">Triad Type:</label>
+                <select id="triadType">
+                    <option value="major">Major</option>
+                    <option value="minor">Minor</option>
+                    <option value="diminished">Diminished</option>
+                    <option value="augmented">Augmented</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="position">Position:</label>
+                <select id="position">
+                    <option value="all">All Positions</option>
+                    <option value="0-3">Frets 0-3</option>
+                    <option value="2-5">Frets 2-5</option>
+                    <option value="4-7">Frets 4-7</option>
+                    <option value="6-9">Frets 6-9</option>
+                    <option value="8-12">Frets 8-12</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="stringSet">String Set:</label>
+                <select id="stringSet">
+                    <option value="654">Strings 6-5-4 (E-A-D)</option>
+                    <option value="543">Strings 5-4-3 (A-D-G)</option>
+                    <option value="432">Strings 4-3-2 (D-G-B)</option>
+                    <option value="321">Strings 3-2-1 (G-B-E)</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="inversion">Inversion:</label>
+                <select id="inversion">
+                    <option value="root">Root Position</option>
+                    <option value="first">First Inversion</option>
+                    <option value="second">Second Inversion</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <button onclick="showTriad()">Show Triad</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="fretboard-container">
+                <div class="fretboard" id="fretboard">
+                    <!-- Fretboard will be generated by JavaScript -->
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-dot root"></div>
+                        <span>Root</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot third"></div>
+                        <span>Third</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot fifth"></div>
+                        <span>Fifth</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="info-panel">
+                    <h3>Triad Information</h3>
+                    <div class="triad-info" id="triadInfo">
+                        <div class="note-info root">Root: C</div>
+                        <div class="note-info third">Third: E</div>
+                        <div class="note-info fifth">Fifth: G</div>
+                    </div>
+                    <p id="triadDescription">A major triad consists of the root, major third, and perfect fifth.</p>
+                </div>
+
+                <div class="exercise-panel">
+                    <h3>Practice Exercises</h3>
+                    <div class="exercise-controls">
+                        <button onclick="startExercise('identify')">Identify Triad Notes</button>
+                        <button onclick="startExercise('build')">Build Triads</button>
+                        <button onclick="startExercise('recognize')">Recognize Triad Type</button>
+                    </div>
+                    <div id="exerciseContent"></div>
+                </div>
+
+                <div class="progress-panel">
+                    <h3>Progress Tracking</h3>
+                    <div class="progress-stats">
+                        <div class="stat">
+                            <div class="stat-number" id="correctAnswers">0</div>
+                            <div>Correct</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number" id="totalQuestions">0</div>
+                            <div>Total</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number" id="accuracy">0%</div>
+                            <div>Accuracy</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number" id="streak">0</div>
+                            <div>Streak</div>
+                        </div>
+                    </div>
+                    <button onclick="resetProgress()">Reset Progress</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Musical data and setup
+        const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const stringTuning = ['E', 'A', 'D', 'G', 'B', 'E']; // Low to high
+        
+        const triadIntervals = {
+            major: [0, 4, 7],
+            minor: [0, 3, 7],
+            diminished: [0, 3, 6],
+            augmented: [0, 4, 8]
+        };
+
+        const triadDescriptions = {
+            major: "A major triad consists of the root, major third, and perfect fifth.",
+            minor: "A minor triad consists of the root, minor third, and perfect fifth.",
+            diminished: "A diminished triad consists of the root, minor third, and diminished fifth.",
+            augmented: "An augmented triad consists of the root, major third, and augmented fifth."
+        };
+
+        // Progress tracking
+        let progress = {
+            correct: 0,
+            total: 0,
+            streak: 0
+        };
+
+        // Exercise state
+        let currentExercise = null;
+        let currentQuestion = null;
+
+        // Initialize fretboard
+        function initializeFretboard() {
+            const fretboard = document.getElementById('fretboard');
+            fretboard.innerHTML = '';
+
+            for (let string = 0; string < 6; string++) {
+                const stringDiv = document.createElement('div');
+                stringDiv.className = 'string';
+                
+                const label = document.createElement('div');
+                label.className = 'string-label';
+                label.textContent = stringTuning[string];
+                stringDiv.appendChild(label);
+
+                const stringLine = document.createElement('div');
+                stringLine.className = 'string-line';
+                stringDiv.appendChild(stringLine);
+
+                for (let fret = 0; fret <= 12; fret++) {
+                    const fretDiv = document.createElement('div');
+                    fretDiv.className = 'fret';
+                    fretDiv.dataset.string = string;
+                    fretDiv.dataset.fret = fret;
+                    
+                    if (string === 0) {
+                        const fretNumber = document.createElement('div');
+                        fretNumber.className = 'fret-number';
+                        fretNumber.textContent = fret;
+                        fretDiv.appendChild(fretNumber);
+                    }
+
+                    fretDiv.onclick = () => handleFretClick(string, fret);
+                    stringDiv.appendChild(fretDiv);
+                }
+
+                fretboard.appendChild(stringDiv);
+            }
+        }
+
+        // Get note at specific string and fret
+        function getNoteAt(string, fret) {
+            const openNote = stringTuning[string];
+            const openNoteIndex = notes.indexOf(openNote);
+            return notes[(openNoteIndex + fret) % 12];
+        }
+
+        // Get all positions of a note on the fretboard
+        function getNotePositions(note, minFret = 0, maxFret = 12) {
+            const positions = [];
+            for (let string = 0; string < 6; string++) {
+                for (let fret = minFret; fret <= maxFret; fret++) {
+                    if (getNoteAt(string, fret) === note) {
+                        positions.push({ string, fret });
+                    }
+                }
+            }
+            return positions;
+        }
+
+        // Find optimal triad positions on 3 specific strings with proper inversion
+        function findTriadOn3Strings(triadNotes, stringSet, inversion, minFret = 0, maxFret = 12) {
+            const strings = stringSet.split('').map(s => parseInt(s) - 1); // Convert to 0-based indexing
+            
+            // Determine which note should be on the lowest (bass) string based on inversion
+            let bassNote, bassNoteType;
+            switch (inversion) {
+                case 'root':
+                    bassNote = triadNotes[0]; // Root
+                    bassNoteType = 'root';
+                    break;
+                case 'first':
+                    bassNote = triadNotes[1]; // Third
+                    bassNoteType = 'third';
+                    break;
+                case 'second':
+                    bassNote = triadNotes[2]; // Fifth
+                    bassNoteType = 'fifth';
+                    break;
+                default:
+                    bassNote = triadNotes[0];
+                    bassNoteType = 'root';
+            }
+
+            // Find all possible positions for the bass note on the lowest string
+            const bassOptions = [];
+            const lowestString = strings[0]; // First string in set (lowest pitch)
+            for (let fret = minFret; fret <= maxFret; fret++) {
+                if (getNoteAt(lowestString, fret) === bassNote) {
+                    bassOptions.push({ string: lowestString, fret, note: bassNote, noteType: bassNoteType });
+                }
+            }
+
+            if (bassOptions.length === 0) return [];
+
+            let bestTriad = null;
+            let minSpan = Infinity;
+
+            // For each bass option, find the best completion on the other two strings
+            for (let bassOption of bassOptions) {
+                // Find remaining notes needed
+                const remainingNotes = triadNotes.filter(note => note !== bassNote);
+                const remainingStrings = strings.slice(1); // Other two strings
+
+                // Find options for the remaining two strings
+                const midStringOptions = [];
+                const highStringOptions = [];
+
+                // Middle string options
+                remainingNotes.forEach(note => {
+                    for (let fret = minFret; fret <= maxFret; fret++) {
+                        if (getNoteAt(remainingStrings[0], fret) === note) {
+                            const noteIndex = triadNotes.indexOf(note);
+                            const noteType = ['root', 'third', 'fifth'][noteIndex];
+                            midStringOptions.push({ string: remainingStrings[0], fret, note, noteType });
+                        }
+                    }
+                });
+
+                // High string options
+                remainingNotes.forEach(note => {
+                    for (let fret = minFret; fret <= maxFret; fret++) {
+                        if (getNoteAt(remainingStrings[1], fret) === note) {
+                            const noteIndex = triadNotes.indexOf(note);
+                            const noteType = ['root', 'third', 'fifth'][noteIndex];
+                            highStringOptions.push({ string: remainingStrings[1], fret, note, noteType });
+                        }
+                    }
+                });
+
+                // Try combinations on middle and high strings
+                for (let midOption of midStringOptions) {
+                    for (let highOption of highStringOptions) {
+                        const candidate = [bassOption, midOption, highOption];
+                        const candidateNotes = candidate.map(pos => pos.note);
+                        
+                        // Check if we have all three different triad notes
+                        const hasAllNotes = triadNotes.every(note => candidateNotes.includes(note));
+                        const hasDistinctNotes = new Set(candidateNotes).size === 3;
+                        
+                        if (hasAllNotes && hasDistinctNotes) {
+                            const frets = candidate.map(pos => pos.fret);
+                            const span = Math.max(...frets) - Math.min(...frets);
+                            
+                            // Prefer smaller spans, and for equal spans, prefer lower positions
+                            if (span < minSpan || (span === minSpan && bassOption.fret < (bestTriad?.[0]?.fret || Infinity))) {
+                                minSpan = span;
+                                bestTriad = candidate;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return bestTriad || [];
+        }
+
+        // Clear all notes from fretboard
+        function clearFretboard() {
+            document.querySelectorAll('.note').forEach(note => note.remove());
+        }
+
+        // Add note to fretboard
+        function addNoteToFretboard(string, fret, noteType, noteName) {
+            const fretElement = document.querySelector(`[data-string="${string}"][data-fret="${fret}"]`);
+            if (fretElement) {
+                const noteElement = document.createElement('div');
+                noteElement.className = `note ${noteType}`;
+                noteElement.textContent = noteName;
+                noteElement.dataset.string = string;
+                noteElement.dataset.fret = fret;
+                noteElement.dataset.type = noteType;
+                fretElement.appendChild(noteElement);
+            }
+        }
+
+        // Show triad on fretboard
+        function showTriad() {
+            const rootNote = document.getElementById('rootNote').value;
+            const triadType = document.getElementById('triadType').value;
+            const position = document.getElementById('position').value;
+            const stringSet = document.getElementById('stringSet').value;
+            const inversion = document.getElementById('inversion').value;
+
+            clearFretboard();
+
+            const intervals = triadIntervals[triadType];
+            const triadNotes = intervals.map(interval => {
+                const noteIndex = (notes.indexOf(rootNote) + interval) % 12;
+                return notes[noteIndex];
+            });
+
+            // Determine fret range
+            let minFret = 0, maxFret = 12;
+            if (position !== 'all') {
+                [minFret, maxFret] = position.split('-').map(Number);
+            }
+
+            // Find optimal triad positions on the selected 3 strings with proper inversion
+            const triadPositions = findTriadOn3Strings(triadNotes, stringSet, inversion, minFret, maxFret);
+            
+            // Add the triad notes to fretboard
+            triadPositions.forEach(pos => {
+                addNoteToFretboard(pos.string, pos.fret, pos.noteType, pos.note);
+            });
+
+            // Update triad info with inversion
+            updateTriadInfo(rootNote, triadType, triadNotes, inversion);
+        }
+
+        // Update triad information panel
+        function updateTriadInfo(root, type, notes, inversion = 'root') {
+            const triadInfo = document.getElementById('triadInfo');
+            const noteTypes = ['root', 'third', 'fifth'];
+            const labels = ['Root', 'Third', 'Fifth'];
+            
+            triadInfo.innerHTML = '';
+            notes.forEach((note, index) => {
+                const div = document.createElement('div');
+                div.className = `note-info ${noteTypes[index]}`;
+                div.textContent = `${labels[index]}: ${note}`;
+                triadInfo.appendChild(div);
+            });
+
+            // Add inversion information
+            const inversionInfo = document.createElement('div');
+            inversionInfo.style.marginTop = '10px';
+            inversionInfo.style.fontSize = '0.9rem';
+            inversionInfo.style.fontWeight = 'bold';
+            inversionInfo.style.color = '#ffd700';
+            
+            let bassNote, inversionText;
+            switch (inversion) {
+                case 'root':
+                    bassNote = notes[0];
+                    inversionText = `Root Position (${bassNote} in bass)`;
+                    break;
+                case 'first':
+                    bassNote = notes[1];
+                    inversionText = `First Inversion (${bassNote} in bass)`;
+                    break;
+                case 'second':
+                    bassNote = notes[2];
+                    inversionText = `Second Inversion (${bassNote} in bass)`;
+                    break;
+            }
+            inversionInfo.textContent = inversionText;
+            triadInfo.appendChild(inversionInfo);
+
+            // Update description with inversion info
+            let description = triadDescriptions[type];
+            const inversionDescriptions = {
+                root: " This is the root position with the root note as the lowest voice.",
+                first: " This is the first inversion with the third as the lowest voice.",
+                second: " This is the second inversion with the fifth as the lowest voice."
+            };
+            description += inversionDescriptions[inversion];
+            
+            document.getElementById('triadDescription').textContent = description;
+        }
+
+        // Handle fret clicks for exercises
+        function handleFretClick(string, fret) {
+            if (!currentExercise) return;
+
+            const note = getNoteAt(string, fret);
+            handleExerciseAnswer(note, string, fret);
+        }
+
+        // Start an exercise
+        function startExercise(type) {
+            currentExercise = type;
+            clearFretboard();
+            
+            switch (type) {
+                case 'identify':
+                    startIdentifyExercise();
+                    break;
+                case 'build':
+                    startBuildExercise();
+                    break;
+                case 'recognize':
+                    startRecognizeExercise();
+                    break;
+            }
+        }
+
+        // Identify triad notes exercise
+        function startIdentifyExercise() {
+            const rootNote = notes[Math.floor(Math.random() * notes.length)];
+            const triadTypes = Object.keys(triadIntervals);
+            const triadType = triadTypes[Math.floor(Math.random() * triadTypes.length)];
+            const stringSet = document.getElementById('stringSet').value;
+            const inversions = ['root', 'first', 'second'];
+            const inversion = inversions[Math.floor(Math.random() * inversions.length)];
+            
+            const intervals = triadIntervals[triadType];
+            const triadNotes = intervals.map(interval => {
+                const noteIndex = (notes.indexOf(rootNote) + interval) % 12;
+                return notes[noteIndex];
+            });
+
+            // Show the triad
+            document.getElementById('rootNote').value = rootNote;
+            document.getElementById('triadType').value = triadType;
+            document.getElementById('inversion').value = inversion;
+            showTriad();
+
+            // Get the displayed triad positions to find what notes are actually shown
+            const triadPositions = findTriadOn3Strings(triadNotes, stringSet, inversion, 0, 12);
+            if (triadPositions.length === 0) {
+                // Fallback if no triad found
+                startIdentifyExercise();
+                return;
+            }
+
+            // Pick a random note from the displayed triad
+            const randomPos = triadPositions[Math.floor(Math.random() * triadPositions.length)];
+            const noteToFind = randomPos.note;
+            const noteRole = randomPos.noteType;
+
+            const inversionNames = {
+                root: 'root position',
+                first: 'first inversion',
+                second: 'second inversion'
+            };
+
+            currentQuestion = {
+                type: 'identify',
+                targetNote: noteToFind,
+                noteRole: noteRole,
+                triad: `${rootNote} ${triadType}`,
+                inversion: inversion,
+                validPositions: triadPositions.filter(pos => pos.note === noteToFind)
+            };
+
+            document.getElementById('exerciseContent').innerHTML = `
+                <div class="exercise-question">
+                    Click on the ${noteRole} note (${noteToFind}) in this ${rootNote} ${triadType} triad (${inversionNames[inversion]})
+                </div>
+            `;
+        }
+
+        // Build triad exercise
+        function startBuildExercise() {
+            clearFretboard();
+            
+            const rootNote = notes[Math.floor(Math.random() * notes.length)];
+            const triadTypes = Object.keys(triadIntervals);
+            const triadType = triadTypes[Math.floor(Math.random() * triadTypes.length)];
+            const stringSet = document.getElementById('stringSet').value;
+            const inversions = ['root', 'first', 'second'];
+            const inversion = inversions[Math.floor(Math.random() * inversions.length)];
+            const strings = stringSet.split('').map(s => parseInt(s) - 1);
+
+            const requiredNotes = triadIntervals[triadType].map(interval => {
+                const noteIndex = (notes.indexOf(rootNote) + interval) % 12;
+                return notes[noteIndex];
+            });
+
+            const inversionNames = {
+                root: 'root position',
+                first: 'first inversion',
+                second: 'second inversion'
+            };
+
+            currentQuestion = {
+                type: 'build',
+                root: rootNote,
+                triadType: triadType,
+                inversion: inversion,
+                stringSet: stringSet,
+                clickedPositions: [],
+                requiredNotes: requiredNotes,
+                targetStrings: strings
+            };
+
+            const stringNames = stringSet.split('').map(s => {
+                const stringIndex = parseInt(s) - 1;
+                return stringTuning[stringIndex];
+            }).join('-');
+
+            document.getElementById('exerciseContent').innerHTML = `
+                <div class="exercise-question">
+                    Build a ${rootNote} ${triadType} triad (${inversionNames[inversion]}) on strings ${stringNames}
+                </div>
+                <button onclick="checkBuildAnswer()">Check Answer</button>
+                <button onclick="clearExercise()">Clear</button>
+            `;
+        }
+
+        // Recognize triad type exercise
+        function startRecognizeExercise() {
+            const rootNote = notes[Math.floor(Math.random() * notes.length)];
+            const triadTypes = Object.keys(triadIntervals);
+            const triadType = triadTypes[Math.floor(Math.random() * triadTypes.length)];
+            const inversions = ['root', 'first', 'second'];
+            const inversion = inversions[Math.floor(Math.random() * inversions.length)];
+            
+            // Show the triad without revealing the type
+            document.getElementById('rootNote').value = rootNote;
+            document.getElementById('triadType').value = triadType;
+            document.getElementById('inversion').value = inversion;
+            showTriad();
+
+            const inversionNames = {
+                root: 'root position',
+                first: 'first inversion',
+                second: 'second inversion'
+            };
+
+            currentQuestion = {
+                type: 'recognize',
+                correctType: triadType,
+                correctInversion: inversion,
+                root: rootNote
+            };
+
+            const typeButtons = triadTypes.map(type => 
+                `<button onclick="handleExerciseAnswer('${type}')">${type.charAt(0).toUpperCase() + type.slice(1)}</button>`
+            ).join('');
+
+            const inversionButtons = inversions.map(inv => 
+                `<button onclick="handleInversionAnswer('${inv}')">${inversionNames[inv]}</button>`
+            ).join('');
+
+            document.getElementById('exerciseContent').innerHTML = `
+                <div class="exercise-question">
+                    What type and inversion of triad is shown? (Root: ${rootNote})
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <strong>Triad Type:</strong>
+                    <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 5px;">
+                        ${typeButtons}
+                    </div>
+                </div>
+                <div>
+                    <strong>Inversion:</strong>
+                    <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 5px;">
+                        ${inversionButtons}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Handle exercise answers
+        function handleExerciseAnswer(answer, string = null, fret = null) {
+            if (!currentQuestion) return;
+
+            let correct = false;
+            let feedback = '';
+
+            switch (currentQuestion.type) {
+                case 'identify':
+                    if (string !== null && fret !== null) {
+                        const clickedNote = getNoteAt(string, fret);
+                        // Check if the clicked position is one of the valid positions for the target note
+                        const validClick = currentQuestion.validPositions && 
+                                         currentQuestion.validPositions.some(pos => pos.string === string && pos.fret === fret);
+                        correct = clickedNote === currentQuestion.targetNote && validClick;
+                        feedback = correct ? 
+                            `Correct! You found the ${currentQuestion.noteRole} (${currentQuestion.targetNote})` :
+                            validClick ? `Incorrect. You clicked ${clickedNote}, but the ${currentQuestion.noteRole} is ${currentQuestion.targetNote}` :
+                            `Click on the displayed triad notes only.`;
+                    }
+                    break;
+                    
+                case 'build':
+                    // Handle in separate function
+                    return;
+                    
+                case 'recognize':
+                    // For recognize exercises, we now need both type and inversion to be correct
+                    if (!currentQuestion.typeAnswered) {
+                        currentQuestion.typeAnswered = true;
+                        currentQuestion.userType = answer;
+                        feedback = `Type selected: ${answer}. Now select the inversion.`;
+                        showFeedback(false, feedback, false); // Don't update progress yet
+                        return;
+                    }
+                    break;
+            }
+
+            showFeedback(correct, feedback);
+            updateProgress(correct);
+            
+            // Auto-start next question after delay
+            setTimeout(() => {
+                startExercise(currentQuestion.type);
+            }, 2000);
+        }
+
+        // Check build exercise answer
+        function checkBuildAnswer() {
+            if (!currentQuestion || currentQuestion.type !== 'build') return;
+
+            const clickedPositions = currentQuestion.clickedPositions;
+            const required = currentQuestion.requiredNotes;
+            const targetStrings = currentQuestion.targetStrings;
+            const inversion = currentQuestion.inversion;
+            
+            // Check if user clicked on each target string
+            const stringsClicked = clickedPositions.map(pos => pos.string);
+            const hasAllStrings = targetStrings.every(string => stringsClicked.includes(string));
+            
+            // Check if clicked notes contain all required triad notes
+            const clickedNotes = clickedPositions.map(pos => pos.note);
+            const hasAllNotes = required.every(note => clickedNotes.includes(note));
+            
+            // Check if the bass note (lowest string) is correct for the inversion
+            let correctBassNote = false;
+            if (clickedPositions.length === 3) {
+                const bassPosition = clickedPositions.find(pos => pos.string === targetStrings[0]);
+                if (bassPosition) {
+                    switch (inversion) {
+                        case 'root':
+                            correctBassNote = bassPosition.note === required[0]; // Root
+                            break;
+                        case 'first':
+                            correctBassNote = bassPosition.note === required[1]; // Third
+                            break;
+                        case 'second':
+                            correctBassNote = bassPosition.note === required[2]; // Fifth
+                            break;
+                    }
+                }
+            }
+            
+            // All conditions must be met
+            const correct = hasAllStrings && hasAllNotes && clickedPositions.length === 3 && correctBassNote;
+
+            const inversionNames = {
+                root: 'root position',
+                first: 'first inversion',
+                second: 'second inversion'
+            };
+
+            const feedback = correct ?
+                `Correct! You built the ${currentQuestion.root} ${currentQuestion.triadType} triad in ${inversionNames[inversion]}` :
+                `Incorrect. Build a ${currentQuestion.root} ${currentQuestion.triadType} triad in ${inversionNames[inversion]} with the correct bass note.`;
+
+            showFeedback(correct, feedback);
+            updateProgress(correct);
+
+            setTimeout(() => {
+                startExercise('build');
+            }, 3000);
+        }
+
+        // Clear exercise
+        function clearExercise() {
+            if (currentQuestion && currentQuestion.type === 'build') {
+                currentQuestion.clickedPositions = [];
+                clearFretboard();
+            }
+        }
+
+        // Handle inversion answer for recognize exercise
+        function handleInversionAnswer(inversion) {
+            if (!currentQuestion || currentQuestion.type !== 'recognize') return;
+            
+            currentQuestion.userInversion = inversion;
+            
+            // Check if both type and inversion are correct
+            const typeCorrect = currentQuestion.userType === currentQuestion.correctType;
+            const inversionCorrect = inversion === currentQuestion.correctInversion;
+            const correct = typeCorrect && inversionCorrect;
+            
+            const inversionNames = {
+                root: 'root position',
+                first: 'first inversion',
+                second: 'second inversion'
+            };
+            
+            let feedback;
+            if (correct) {
+                feedback = `Correct! It's a ${currentQuestion.correctType} triad in ${inversionNames[currentQuestion.correctInversion]}`;
+            } else {
+                let errors = [];
+                if (!typeCorrect) errors.push(`type is ${currentQuestion.correctType}, not ${currentQuestion.userType}`);
+                if (!inversionCorrect) errors.push(`inversion is ${inversionNames[currentQuestion.correctInversion]}, not ${inversionNames[inversion]}`);
+                feedback = `Incorrect. The ${errors.join(' and the ')}.`;
+            }
+            
+            showFeedback(correct, feedback);
+            updateProgress(correct);
+            
+            // Auto-start next question after delay
+            setTimeout(() => {
+                startExercise('recognize');
+            }, 2000);
+        }
+
+        // Show feedback
+        function showFeedback(correct, message, autoAdvance = true) {
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.className = `answer-feedback ${correct ? 'correct' : 'incorrect'}`;
+            feedbackDiv.textContent = message;
+            
+            const exerciseContent = document.getElementById('exerciseContent');
+            const existingFeedback = exerciseContent.querySelector('.answer-feedback');
+            if (existingFeedback) {
+                existingFeedback.remove();
+            }
+            exerciseContent.appendChild(feedbackDiv);
+        }
+
+        // Update progress tracking
+        function updateProgress(correct) {
+            progress.total++;
+            if (correct) {
+                progress.correct++;
+                progress.streak++;
+            } else {
+                progress.streak = 0;
+            }
+
+            document.getElementById('correctAnswers').textContent = progress.correct;
+            document.getElementById('totalQuestions').textContent = progress.total;
+            document.getElementById('accuracy').textContent = 
+                progress.total > 0 ? Math.round((progress.correct / progress.total) * 100) + '%' : '0%';
+            document.getElementById('streak').textContent = progress.streak;
+        }
+
+        // Reset progress
+        function resetProgress() {
+            progress = { correct: 0, total: 0, streak: 0 };
+            updateProgress(false);
+            progress.streak = 0;
+            document.getElementById('streak').textContent = '0';
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeFretboard();
+            showTriad();
+            updateProgress(false);
+            progress.streak = 0;
+            document.getElementById('streak').textContent = '0';
+        });
+
+        // Add note click handling for build exercise
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('fret') && currentQuestion && currentQuestion.type === 'build') {
+                const string = parseInt(e.target.dataset.string);
+                const fret = parseInt(e.target.dataset.fret);
+                const note = getNoteAt(string, fret);
+                
+                // Check if this is a target string for the current exercise
+                if (!currentQuestion.targetStrings.includes(string)) {
+                    return; // Only allow clicks on target strings
+                }
+                
+                // Check if this string already has a selection
+                const existingIndex = currentQuestion.clickedPositions.findIndex(pos => pos.string === string);
+                
+                if (existingIndex !== -1) {
+                    // Remove existing selection on this string
+                    currentQuestion.clickedPositions.splice(existingIndex, 1);
+                    // Remove visual note
+                    const existingNote = e.target.querySelector('.note');
+                    if (existingNote) existingNote.remove();
+                }
+                
+                // Add new selection if clicking a different fret or if nothing was selected
+                const currentSelection = currentQuestion.clickedPositions.find(pos => pos.string === string && pos.fret === fret);
+                if (!currentSelection) {
+                    // Add position
+                    currentQuestion.clickedPositions.push({ string, fret, note });
+                    // Add visual note
+                    const noteElement = document.createElement('div');
+                    noteElement.className = 'note root'; // Use root styling for user selections
+                    noteElement.textContent = note;
+                    e.target.appendChild(noteElement);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+                
